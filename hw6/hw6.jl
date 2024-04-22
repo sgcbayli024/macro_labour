@@ -34,39 +34,39 @@ function income_process(p)
     return z_grid, Π 
 end
 
-function wage_grid(pars)
-    (;w_lb, w_ub, Δw) = pars
+function wage_grid(p)
+    (;w_lb, w_ub, Δw) = p
     w_grid = range(w_lb, w_ub, step = Δw)
     return w_grid
 end
 
-function search_cost_grid(pars)
-    (;s_lb, s_ub, Δs) = pars
+function search_cost_grid(p)
+    (;s_lb, s_ub, Δs) = p
     s_grid = range(s_lb, s_ub, step = Δs)
     return s_grid
 end
 
-function job_finding_rate(θ, pars)
-    (;γ) = pars
-    p = θ*(1. + θ^γ)^(-1/γ)
-    return p
+function job_finding_rate(θ, p)
+    (;γ) = p
+    pr = θ*(1. + θ^γ)^(-1/γ)
+    return pr
 end
 
-function job_opp(s, pars)
-    (;a) = pars
+function job_opp(s, p)
+    (;a) = p
     job_opp = s^a
     return job_opp
 end
 
-function benefits_grid(pars)
-    (;b) = pars
-    temp_w_grid = wage_grid(pars)
+function benefits_grid(p)
+    (;b) = p
+    temp_w_grid = wage_grid(p)
     benefits = b .* temp_w_grid
     return benefits
 end
 
-function utility(c,pars)
-    (;σ) = pars
+function utility(c,p)
+    (;σ) = p
     
     if σ == 1
         u = log
@@ -77,8 +77,8 @@ function utility(c,pars)
     return u(c)
 end
 
-function job_dest(z,w,pars)
-    (;δ) = pars
+function job_dest(z,w,p)
+    (;δ) = p
     if z >= w
         return δ
     else
@@ -86,29 +86,29 @@ function job_dest(z,w,pars)
     end
 end
 
-function search_costs(s,pars)
-    (;α, χ) = pars
+function search_costs(s,p)
+    (;α, χ) = p
     return α * (s^χ)
 end
 
-function initial_J(pars)
-    (;nz,w_ub,w_lb,Δw) = pars
+function initial_J(p)
+    (;nz,w_ub,w_lb,Δw) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
     J = zeros(nw,nz)
     return J
 end
 
-function iterate_J(pars)
-    (;nz, w_ub, w_lb, Δw, a, b, γ, κ, δ, α, χ, β, toler, maxiter) = pars
+function iterate_J(p)
+    (;nz, w_ub, w_lb, Δw, β, toler, maxiter) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
-    J_init = initial_J(pars)
+    J_init = initial_J(p)
     J_new = copy(J_init)
     error = 1
     iter = 1
-    z_grid, Π = income_process(pars)
-    w_grid = wage_grid(pars)
+    z_grid, Π = income_process(p)
+    w_grid = wage_grid(p)
     EV = zeros(nw,nz)
     while iter <= maxiter
         J_new = copy(J_init)
@@ -119,7 +119,7 @@ function iterate_J(pars)
                     EV[i,j] += J_init[i,jp] * Π[j,jp]
                 end
             end
-            J_init[i,:] = z_grid .- w_grid[i] .+ (β .* (1 .- job_dest.(z_grid,w_grid[i],Ref(pars)))) .* EV[i,:]
+            J_init[i,:] = z_grid .- w_grid[i] .+ (β .* (1 .- job_dest.(z_grid,w_grid[i],Ref(p)))) .* EV[i,:]
         end
         error = maximum(abs.(J_new - J_init))
         J_new = copy(J_init)
@@ -150,8 +150,8 @@ function iterate_J(pars)
     return J_new
 end
 
-function θ_probs(Θ,pars)
-    (;γ, nz, w_lb,w_ub,Δw) = pars
+function θ_probs(Θ,p)
+    (;γ, nz, w_lb,w_ub,Δw) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
     P = zeros(nw,nz)
@@ -159,30 +159,30 @@ function θ_probs(Θ,pars)
     return P
 end
 
-function initial_W(pars)
-    (;nz,w_ub,w_lb,Δw) = pars
+function initial_W(p)
+    (;nz,w_ub,w_lb,Δw) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
     W = ones(nw,nz)
     return W
 end
 
-function initial_U(pars)
-    (;nz,w_ub,w_lb,Δw) = pars
+function initial_U(p)
+    (;nz,w_ub,w_lb,Δw) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
     U = ones(nw,nz)
     return U
 end
 
-function iterate_W_U(pars)
-    (;nz, w_ub, w_lb, Δw, s_lb, s_ub, Δs, a, b, γ, κ, δ, α, χ, β, toler, maxiter) = pars
+function iterate_W_U(p)
+    (;nz, w_ub, w_lb, Δw, s_lb, s_ub, Δs, β, toler, maxiter) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
     ns = (s_ub - s_lb)/Δs + 1
     ns = round(Int,ns)
-    W_init = initial_W(pars)
-    U_init = initial_U(pars)
+    W_init = initial_W(p)
+    U_init = initial_U(p)
     W_new = copy(W_init)
     U_new = copy(U_init)
     search_policy = zeros(nw,nz)
@@ -191,12 +191,12 @@ function iterate_W_U(pars)
     EW = zeros(nw,nz)
     EU = zeros(nw,nz,ns)
     final_util = zeros(ns)
-    z_grid, Π = income_process(pars)
-    w_grid = wage_grid(pars)
-    b_grid = benefits_grid(pars)
-    s_grid = search_cost_grid(pars)
-    Θ = thetas(J_out,pars)
-    P = θ_probs(Θ,pars)
+    z_grid, Π = income_process(p)
+    w_grid = wage_grid(p)
+    b_grid = benefits_grid(p)
+    s_grid = search_cost_grid(p)
+    Θ = thetas(J_out,p)
+    P = θ_probs(Θ,p)
     error = toler+1
     iter = 1
     while iter <= maxiter
@@ -205,9 +205,9 @@ function iterate_W_U(pars)
             for j in 1:nz
                 EW[i,j] = 0
                 for jp in 1:nz
-                    EW[i,j] += Π[j,jp] * (1-job_dest(z_grid[jp],w_grid[i],pars)) * W_init[i,jp] + Π[j,jp] * job_dest(z_grid[jp],w_grid[i],pars) * U_init[i,jp]
+                    EW[i,j] += Π[j,jp] * (1-job_dest(z_grid[jp],w_grid[i],p)) * W_init[i,jp] + Π[j,jp] * job_dest(z_grid[jp],w_grid[i],p) * U_init[i,jp]
                 end
-                W_new[i,j] = utility(w_grid[i],pars) + β * EW[i,j]
+                W_new[i,j] = utility(w_grid[i],p) + β * EW[i,j]
             end
         end 
         ### Posting decision ### 
@@ -226,8 +226,8 @@ function iterate_W_U(pars)
             for j in 1:nz
                 for s in 1:ns
                     EU[i,j,s] = 0
-                    util = utility(b_grid[i],pars) - search_costs(s_grid[s],pars) 
-                    λ = job_opp(s_grid[s],pars)
+                    util = utility(b_grid[i],p) - search_costs(s_grid[s],p) 
+                    λ = job_opp(s_grid[s],p)
                     for jp in 1:nz
                         EU[i,j,s] += Π[j,jp] * λ * posting_decision[i,j] + Π[j,jp] * (1 - λ) * (0.1 * U_new[1,jp] .+ 0.9 * U_new[i,jp])
                     end
@@ -271,17 +271,17 @@ function iterate_W_U(pars)
     return W_init,U_init,search_policy, w_hat
 end
 
-function sim(pars, search_policy, wage_policy)
-    (; Np, T, Tb) = pars
-    sim_z_grid, sim_Π = income_process(pars)
-    sim_b_grid = benefits_grid(pars)
-    sim_w_grid = wage_grid(pars)
-    test_θ = thetas(J_out,pars)
-    θ_out = θ_probs(test_θ,pars)
+function sim(p, wage_policy)
+    (; Np, T, Tb) = p
+    sim_z_grid, = income_process(p)
+    sim_b_grid = benefits_grid(p)
+    sim_w_grid = wage_grid(p)
+    test_θ = thetas(J_out,p)
+    θ_out = θ_probs(test_θ,p)
     sim_wages_and_benefits = zeros(Np,T)
     sim_emp_status = zeros(Np,T)
-    match_p, δ_p, b_p = random_matrices(pars)
-    sim_productivity = productivity_sim(pars)
+    match_p, δ_p, b_p = random_matrices(p)
+    sim_productivity = productivity_sim(p)
 
     for i in 1:Np
         for t in 1:T
@@ -336,8 +336,8 @@ function sim(pars, search_policy, wage_policy)
     return sim_wages_and_benefits, sim_emp_status, unemployment_rate, time_series_unemployment
 end
 
-function random_matrices(pars)
-    (;Np, T, Tb, δ, b_end) = pars
+function random_matrices(p)
+    (;Np, T, δ, b_end) = p
     dist = Uniform(0,1)
     δ_dist = Binomial(1, δ)
     b_dist = Binomial(1, b_end)
@@ -347,9 +347,9 @@ function random_matrices(pars)
     return match_probs, destruction_probs, end_benefit_probs
 end
 
-function productivity_sim(pars)
-    (;Np, T, Tb) = pars
-    z_grid, Π = income_process(pars)
+function productivity_sim(p)
+    (;Np, T) = p
+    z_grid, Π = income_process(p)
     prod_sim = zeros(Np,T)
     for i in 1:Np
         prod_sim[i,1] = rand(z_grid)
