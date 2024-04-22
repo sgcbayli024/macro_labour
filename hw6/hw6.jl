@@ -141,13 +141,11 @@ function iterate_J(p)
             println("--------------------")
             println("Iteration: $iter")
             println("Error: $error")
-            println("--------------------")
         end
         if iter % 100 == 0
             println("--------------------")
             println("Iteration: $iter")
             println("Error: $error")
-            println("--------------------")
         end
         iter += 1
     end
