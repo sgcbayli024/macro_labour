@@ -22,7 +22,7 @@ pars = (;β = 0.996, # discount factor
         toler = 1e-6, # tolerance for convergence
         maxiter = 100000, # maximum number of iterations
         Np = 40000, # number of agents
-        T = 200, # number of periods
+        T = 220, # number of periods
         Tb = 100 # burn-in periods
 )
 
