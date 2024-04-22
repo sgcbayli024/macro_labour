@@ -23,11 +23,11 @@ pars = (;β = 0.996, # discount factor
         maxiter = 100000, # maximum number of iterations
         Np = 40000, # number of agents
         T = 220, # number of periods
-        Tb = 100 # burn-in periods
+        Tb = 100, # burn-in periods
         seed_match = 10, # seed for match probabilities
         seed_δ = 8, # seed for separation probabilities
         seed_b = 4, # seed for end of benefits probabilities
-        seed_prod = 1, # seed for productivity process
+        seed_prod = 1 # seed for productivity process
 )
 
 function income_process(p)
@@ -128,26 +128,24 @@ function iterate_J(p)
         error = maximum(abs.(J_new - J_init))
         J_new = copy(J_init)
         if error < toler
-            println("--------------------")
-            println("Converged in $iter iterations")
-            println("Error: $error")
-            println("--------------------")
+            #println("--------------------")
+            #println("Converged in $iter iterations")
+            #println("Error: $error")
+            #println("--------------------")
             break
         end
         if iter == maxiter
             println("Maximum number of iterations reached")
         end
         if iter == 1
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
-            println("--------------------")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         if iter % 100 == 0
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
-            println("--------------------")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         iter += 1
     end
@@ -196,7 +194,7 @@ function initial_U(p)
     return U
 end
 
-function iterate_W_U(p)
+function iterate_W_U(p, J_out)
     (;nz, w_ub, w_lb, Δw, s_lb, s_ub, Δs, β, toler, maxiter) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
@@ -264,24 +262,24 @@ function iterate_W_U(p)
         errorU = maximum(abs.(U_new - U_init))
         error = max(errorW,errorU)
         if error < toler
-            println("--------------------")
-            println("Converged in $iter iterations")
-            println("Error: $error")
-            println("--------------------")
+            #println("--------------------")
+            #println("Converged in $iter iterations")
+            #println("Error: $error")
+            #println("--------------------")
             break
         end
         if iter == maxiter
             println("Maximum number of iterations reached")
         end
         if iter == 1
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         if iter % 100 == 0
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         ### Update values ###
         W_init = copy(W_new)
@@ -292,7 +290,7 @@ function iterate_W_U(p)
     return W_init, U_init, search_policy, w_hat
 end
 
-function sim(p, wage_policy)
+function sim(p, wage_policy, J_out)
     (; Np, T, Tb) = p
     sim_z_grid, = income_process(p)
     sim_b_grid = benefits_grid(p)
@@ -348,11 +346,12 @@ function sim(p, wage_policy)
     end
     sim_wages_and_benefits = sim_wages_and_benefits[:,Tb+1:end]
     sim_emp_status = sim_emp_status[:,Tb+1:end]
-    unemployment_rate = (sum(sim_emp_status .== 0) / (Np * (T - Tb))) * 100
+    #unemployment_rate = (sum(sim_emp_status .== 0) / (Np * (T - Tb))) * 100
     time_series_unemployment = zeros(Tb)
     for t in 1:Tb
         time_series_unemployment[t] = (sum(sim_emp_status[:,t] .== 0) / Np ) * 100
     end
+    unemployment_rate = mean(time_series_unemployment)
 
     return sim_wages_and_benefits, sim_emp_status, unemployment_rate, time_series_unemployment
 end
