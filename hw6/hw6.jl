@@ -272,7 +272,7 @@ function iterate_W_U(p)
         iter += 1
     end
 
-    return W_init,U_init,search_policy, w_hat
+    return W_init, U_init, search_policy, w_hat
 end
 
 function sim(p, wage_policy)
