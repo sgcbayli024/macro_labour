@@ -24,6 +24,10 @@ pars = (;β = 0.996, # discount factor
         Np = 40000, # number of agents
         T = 220, # number of periods
         Tb = 100 # burn-in periods
+        seed_match = 10, # seed for match probabilities
+        seed_δ = 8, # seed for separation probabilities
+        seed_b = 4, # seed for end of benefits probabilities
+        seed_prod = 1, # seed for productivity process
 )
 
 function income_process(p)
@@ -337,9 +341,12 @@ function sim(p, wage_policy)
 end
 
 function random_matrices(p)
-    (;Np, T, δ, b_end) = p
+    (;Np, T, δ, b_end, seed_match, seed_δ, seed_b) = p
+    Random.seed!(seed_match)
     dist = Uniform(0,1)
+    Random.seed!(seed_δ)
     δ_dist = Binomial(1, δ)
+    Random.seed!(seed_b)
     b_dist = Binomial(1, b_end)
     match_probs = rand(dist, Np, T)
     destruction_probs = rand(δ_dist, Np, T)
@@ -348,7 +355,8 @@ function random_matrices(p)
 end
 
 function productivity_sim(p)
-    (;Np, T) = p
+    (;Np, T, seed_prod) = p
+    Random.seed!(seed_prod)
     z_grid, Π = income_process(p)
     prod_sim = zeros(Np,T)
     for i in 1:Np
