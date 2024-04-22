@@ -23,7 +23,7 @@ pars = (;β = 0.996, # discount factor
         maxiter = 100000, # maximum number of iterations
         Np = 40000, # number of agents
         T = 220, # number of periods
-        Tb = 100 # burn-in periods
+        Tb = 100, # burn-in periods
         seed_match = 10, # seed for match probabilities
         seed_δ = 8, # seed for separation probabilities
         seed_b = 4, # seed for end of benefits probabilities
@@ -196,7 +196,7 @@ function initial_U(p)
     return U
 end
 
-function iterate_W_U(p)
+function iterate_W_U(p, J_out)
     (;nz, w_ub, w_lb, Δw, s_lb, s_ub, Δs, β, toler, maxiter) = p
     nw = (w_ub - w_lb)/Δw + 1
     nw = round(Int,nw)
@@ -292,7 +292,7 @@ function iterate_W_U(p)
     return W_init, U_init, search_policy, w_hat
 end
 
-function sim(p, wage_policy)
+function sim(p, wage_policy, J_out)
     (; Np, T, Tb) = p
     sim_z_grid, = income_process(p)
     sim_b_grid = benefits_grid(p)
