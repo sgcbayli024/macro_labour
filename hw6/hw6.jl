@@ -154,6 +154,23 @@ function iterate_J(p)
     return J_new
 end
 
+function thetas(J,pars)
+    (;γ, κ, nz, w_lb,w_ub,Δw) = pars
+    nw = (w_ub - w_lb)/Δw + 1
+    nw = round(Int,nw)
+    Θ = zeros(nw,nz)
+    for i in 1:nw
+        for j in 1:nz
+            if J[i,j] / κ >= 1.0
+                Θ[i,j] = ((J[i,j] / κ)^γ - 1.)^(1/γ)
+            else
+                Θ[i,j] = 0
+            end
+        end
+    end
+    return Θ
+end
+
 function θ_probs(Θ,p)
     (;γ, nz, w_lb,w_ub,Δw) = p
     nw = (w_ub - w_lb)/Δw + 1
@@ -272,7 +289,7 @@ function iterate_W_U(p)
         iter += 1
     end
 
-    return W_init,U_init,search_policy, w_hat
+    return W_init, U_init, search_policy, w_hat
 end
 
 function sim(p, wage_policy)
