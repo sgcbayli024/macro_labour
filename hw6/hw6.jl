@@ -27,7 +27,7 @@ pars = (;β = 0.996, # discount factor
         seed_match = 10, # seed for match probabilities
         seed_δ = 8, # seed for separation probabilities
         seed_b = 4, # seed for end of benefits probabilities
-        seed_prod = 1, # seed for productivity process
+        seed_prod = 1 # seed for productivity process
 )
 
 function income_process(p)
