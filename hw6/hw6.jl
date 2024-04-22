@@ -128,24 +128,24 @@ function iterate_J(p)
         error = maximum(abs.(J_new - J_init))
         J_new = copy(J_init)
         if error < toler
-            println("--------------------")
-            println("Converged in $iter iterations")
-            println("Error: $error")
-            println("--------------------")
+            #println("--------------------")
+            #println("Converged in $iter iterations")
+            #println("Error: $error")
+            #println("--------------------")
             break
         end
         if iter == maxiter
             println("Maximum number of iterations reached")
         end
         if iter == 1
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         if iter % 100 == 0
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         iter += 1
     end
@@ -262,24 +262,24 @@ function iterate_W_U(p, J_out)
         errorU = maximum(abs.(U_new - U_init))
         error = max(errorW,errorU)
         if error < toler
-            println("--------------------")
-            println("Converged in $iter iterations")
-            println("Error: $error")
-            println("--------------------")
+            #println("--------------------")
+            #println("Converged in $iter iterations")
+            #println("Error: $error")
+            #println("--------------------")
             break
         end
         if iter == maxiter
             println("Maximum number of iterations reached")
         end
         if iter == 1
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         if iter % 100 == 0
-            println("--------------------")
-            println("Iteration: $iter")
-            println("Error: $error")
+            #println("--------------------")
+            #println("Iteration: $iter")
+            #println("Error: $error")
         end
         ### Update values ###
         W_init = copy(W_new)
@@ -346,11 +346,12 @@ function sim(p, wage_policy, J_out)
     end
     sim_wages_and_benefits = sim_wages_and_benefits[:,Tb+1:end]
     sim_emp_status = sim_emp_status[:,Tb+1:end]
-    unemployment_rate = (sum(sim_emp_status .== 0) / (Np * (T - Tb))) * 100
+    #unemployment_rate = (sum(sim_emp_status .== 0) / (Np * (T - Tb))) * 100
     time_series_unemployment = zeros(Tb)
     for t in 1:Tb
         time_series_unemployment[t] = (sum(sim_emp_status[:,t] .== 0) / Np ) * 100
     end
+    unemployment_rate = mean(time_series_unemployment)
 
     return sim_wages_and_benefits, sim_emp_status, unemployment_rate, time_series_unemployment
 end
